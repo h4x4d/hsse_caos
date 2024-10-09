@@ -18,7 +18,8 @@
 using namespace stdlike;
 
 TEST_CASE("Cheater") {
-    REQUIRE(!std::is_base_of_v<decltype(std::cin), decltype(stdlike::cin)>);
+    REQUIRE(!std::is_base_of_v<decltype(std::cin), decltype(cin)>);
+    REQUIRE(!std::is_base_of_v<decltype(std::cout), decltype(cout)>);
 }
 
 class InputTest {
