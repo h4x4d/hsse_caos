@@ -56,7 +56,7 @@ $ git config --local user.name "<логин с manytask>"
 $ git config --local user.email "<email с manytask>"
 
 # Настраиваем возможность получать обновления из публичного репозитория с задачами
-$ git remote add upstream git@gitlab.manytask.org:mipt-cpp/public-2024-fall.git
+$ git remote add upstream git@gitlab.manytask.org:mipt/hsse-caos/public-2024-fall.git
 ```
 
 В течении всего курса публичный репозиторий будет обновляться, в нём будут появляться новый задачи,
