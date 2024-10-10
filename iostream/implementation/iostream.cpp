@@ -21,7 +21,7 @@ istream& istream::operator>>(int& value) {
     return *this;
 }
 
-istream& istream::operator>>(long long int& value) {
+istream& istream::operator>>(long long& value) {
     cout.flush();
     skip_spaces();
     long long minus = 1;
@@ -42,7 +42,7 @@ istream& istream::operator>>(unsigned int& value) {
     return *this;
 }
 
-istream& istream::operator>>(unsigned long long int& value) {
+istream& istream::operator>>(unsigned long long& value) {
     cout.flush();
     skip_spaces();
     value = 0;
@@ -133,7 +133,7 @@ ostream& ostream::operator<<(int value) {
     return *this << static_cast<long long>(value);
 }
 
-ostream& ostream::operator<<(long long int value) {
+ostream& ostream::operator<<(long long value) {
     if (max_buffer_size_ - offset_ < 20) {
         write_buffer();
     }
