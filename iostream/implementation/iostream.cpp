@@ -1,4 +1,5 @@
 #include "iostream.hpp"
+#include <limits>
 
 namespace stdlike {
 
@@ -31,7 +32,12 @@ istream& istream::operator>>(long long& value) {
     }
     unsigned long long number;
     *this >> number;
-    value = minus * static_cast<long long>(number);
+    if (number > std::numeric_limits<long long>::max()) {
+        value = minus > 0 ? std::numeric_limits<long long>::max()
+                          : std::numeric_limits<long long>::min();
+    } else {
+        value = minus * static_cast<long long>(number);
+    }
     return *this;
 }
 
