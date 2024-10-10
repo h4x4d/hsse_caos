@@ -15,6 +15,7 @@
 
 #include "implementation/iostream.hpp"
 
+// NOLINTBEGIN
 using namespace stdlike;
 
 TEST_CASE("Cheater") {
@@ -214,3 +215,4 @@ TEST_CASE_METHOD(OutputTest, "FlushingOutputBeforeInput") {
     RestoreIfstream();
     REQUIRE_THAT(ExportOutput(), Catch::Matchers::Matches(output_before_input.data()));
 }
+// NOLINTEND
