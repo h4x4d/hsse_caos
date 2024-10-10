@@ -1,7 +1,7 @@
 #pragma once
 
-#include <cstdint>
+#include <stdexcept>
 
-int64_t Multiply(int64_t first, int64_t second) {
-    return first * second;
+int64_t Multiply(int first, int second) {
+    return static_cast<int64_t>(first) * second;
 }
