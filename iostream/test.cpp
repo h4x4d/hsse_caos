@@ -128,15 +128,48 @@ TEST_CASE_METHOD(InputTest, "InputVectorWithWrongInput") {
     REQUIRE(v == expected_v);
 }
 
+TEST_CASE_METHOD(InputTest, "ReadCharIntoInt") {
+    int a;
+    REQUIRE_NOTHROW(cin >> a);
+
+    REQUIRE(a == 0);
+    REQUIRE(cin.fail());
+}
+
+TEST_CASE_METHOD(InputTest, "NoReadPermissions") {
+    int real_stdin_fd = dup(STDIN_FILENO);
+    close(STDIN_FILENO);
+
+    auto ReadMillionTimes = []() {
+        char a;
+        for (int i = 0; i < 1000000; ++i) {
+            cin >> a;
+        }
+    };
+
+    REQUIRE_NOTHROW(ReadMillionTimes());
+    REQUIRE(cin.fail());
+
+    dup2(real_stdin_fd, STDIN_FILENO);
+    close(real_stdin_fd);
+}
+
 class OutputTest {
 public:
-    OutputTest() : stdout_d(dup(STDOUT_FILENO)), buf(32, '\0') {
+    OutputTest() : stdout_d(dup(STDOUT_FILENO)), stdin_d(dup(STDIN_FILENO)), buf(32, '\0') {
         int fd = open(kOutputFilePath.data(), O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
         if (dup2(fd, STDOUT_FILENO) == -1) {
             close(fd);
             throw std::runtime_error("couldn't open file for output");
         }
         fin.open(kOutputFilePath.data());
+        close(fd);
+
+        fd = open(kInputFilePath.data(), O_RDONLY);
+        if (dup2(fd, STDIN_FILENO) == -1) {
+            close(fd);
+            throw std::runtime_error("couldn't open input-source file");
+        }
         close(fd);
     }
 
@@ -156,14 +189,43 @@ public:
         }
     }
 
+    void ProhibitWritingToSTDOUT() {
+        stdout_with_write_permissions_d = dup(STDOUT_FILENO);
+
+        // open file with only read permissions
+        int fd = open(kOutputFilePath.data(), O_RDONLY, S_IRUSR);
+
+        if (dup2(fd, STDOUT_FILENO) == -1) {
+            close(fd);
+            throw std::runtime_error("couldn't open file for output");
+        }
+        fin.open(kOutputFilePath.data());
+        close(fd);
+    }
+
+    void AllowWritingToSTDOUT() {
+        dup2(stdout_with_write_permissions_d, STDOUT_FILENO);
+        close(stdout_with_write_permissions_d);
+    }
+
     ~OutputTest() {
         dup2(stdout_d, STDOUT_FILENO);
         close(stdout_d);
+        fin.close();
+
+        dup2(stdin_d, STDIN_FILENO);
+        close(stdin_d);
     }
 
 private:
     static constexpr std::string_view kOutputFilePath = "../iostream/io_files/output.txt";
     int stdout_d{-1};
+    int stdout_with_write_permissions_d{-1};  // uses only in
+                                              // ProhibitWritingToSTDOUT and
+                                              // AllowWritingToSTDOUT methods
+
+    static constexpr std::string_view kInputFilePath = "../iostream/io_files/input.txt";
+    int stdin_d{-1};
 
     std::ifstream fin;
     std::string buf;
@@ -214,5 +276,22 @@ TEST_CASE_METHOD(OutputTest, "FlushingOutputBeforeInput") {
     cin >> trigger;
     RestoreIfstream();
     REQUIRE_THAT(ExportOutput(), Catch::Matchers::Matches(output_before_input.data()));
+}
+
+TEST_CASE_METHOD(OutputTest, "NoWritePermissions") {
+    ProhibitWritingToSTDOUT();
+
+    cout.flush();
+
+    auto CoutWithFlush = []() {
+        cout << "Some string!";
+        cout.flush();
+    };
+
+    REQUIRE_NOTHROW(CoutWithFlush());
+    REQUIRE(cout.fail());
+
+    AllowWritingToSTDOUT();
+    cout.flush();  // clear buffer
 }
 // NOLINTEND
