@@ -1,10 +1,10 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
+
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
-#include <iostream>
-#include <string>
 
 #include "implementation/rec_dir_it.hpp"
 
@@ -43,7 +43,7 @@ TEST_CASE_METHOD(RecursiveDirectoryIteratorTest, "EmptyDirectoryHandling") {
 }
 
 TEST_CASE_METHOD(RecursiveDirectoryIteratorTest, "PlainTraversal") {
-    std::vector<fs::path> expectedPaths = {
+    std::vector<fs::path> expected_paths = {
         test_dir / "file.txt", test_dir / "subdir1",           test_dir / "subdir1/file1.txt",
         test_dir / "subdir2",  test_dir / "subdir2/file2.txt",
     };
@@ -53,9 +53,9 @@ TEST_CASE_METHOD(RecursiveDirectoryIteratorTest, "PlainTraversal") {
         actual_paths.emplace_back(entry.path());
     }
 
-    REQUIRE(actual_paths.size() == expectedPaths.size());
-    for (const auto& expected : expectedPaths) {
-        REQUIRE(std::ranges::find(actual_paths, expected) != actual_paths.end());
+    REQUIRE(actual_paths.size() == expected_paths.size());
+    for (const auto& expected : expected_paths) {
+        REQUIRE(std::find(actual_paths.begin(), actual_paths.end(), expected) != actual_paths.end());
     }
 }
 
@@ -85,7 +85,7 @@ TEST_CASE_METHOD(RecursiveDirectoryIteratorTest, "AccessOptions") {
     fs::permissions(test_dir / "subdir1", fs::perms::owner_all);
 
     for (const auto& path : possiblePaths) {
-        REQUIRE(std::ranges::find(actual_paths, path) != actual_paths.end());
+        REQUIRE(std::find(actual_paths.begin(), actual_paths.end(), path) != actual_paths.end());
     }
 }
 
@@ -115,7 +115,7 @@ TEST_CASE_METHOD(RecursiveDirectoryIteratorTest, "SymLinksProcessing") {
     REQUIRE(cnt_symlinks == expected_cnt_symlinks);
 
     for (const auto& path : control_paths) {
-        REQUIRE(std::ranges::find(actual_paths, path) != actual_paths.end());
+        REQUIRE(std::find(actual_paths.begin(), actual_paths.end(), path) != actual_paths.end());
     }
 
     fs::remove_all(redirector_dir);
@@ -142,7 +142,7 @@ TEST_CASE_METHOD(RecursiveDirectoryIteratorTest, "CheckDepthAndPop") {
     }
 
     for (auto entry : control_depths) {
-        REQUIRE(std::ranges::find(actual_paths, entry) != actual_paths.end());
+        REQUIRE(std::find(actual_paths.begin(), actual_paths.end(), entry) != actual_paths.end());
     }
 
     for (auto it = stdlike::recursive_directory_iterator(test_dir.c_str()); it != stdlike::end(it);
