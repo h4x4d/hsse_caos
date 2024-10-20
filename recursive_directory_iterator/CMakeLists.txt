@@ -1,1 +1,1 @@
-add_catch(test_rec_dir_it test.cpp implementation/rec_dir_it.cpp)
+add_catch(test_recursive_directory_iterator test.cpp implementation/rec_dir_it.cpp)
