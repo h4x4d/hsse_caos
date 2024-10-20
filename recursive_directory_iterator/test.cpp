@@ -9,7 +9,7 @@
 #include "implementation/rec_dir_it.hpp"
 
 namespace fs = std::filesystem;
-
+// NOLINTBEGIN
 using namespace stdlike;
 
 class RecursiveDirectoryIteratorTest {
@@ -185,3 +185,4 @@ TEST_CASE_METHOD(RecursiveDirectoryIteratorTest, "CheckStats") {
     REQUIRE(directories_cnt == kExpectedDirectoriesCnt);
     REQUIRE(regular_cnt == kExpectedRegularCnt);
 }
+// NOLINTEND
