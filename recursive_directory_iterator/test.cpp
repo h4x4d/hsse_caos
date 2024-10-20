@@ -55,7 +55,8 @@ TEST_CASE_METHOD(RecursiveDirectoryIteratorTest, "PlainTraversal") {
 
     REQUIRE(actual_paths.size() == expected_paths.size());
     for (const auto& expected : expected_paths) {
-        REQUIRE(std::find(actual_paths.begin(), actual_paths.end(), expected) != actual_paths.end());
+        REQUIRE(std::find(actual_paths.begin(), actual_paths.end(), expected) !=
+                actual_paths.end());
     }
 }
 
@@ -69,7 +70,7 @@ TEST_CASE_METHOD(RecursiveDirectoryIteratorTest, "AccessOptions") {
     };
     REQUIRE_THROWS(dangerous_traversal());
 
-    std::vector<fs::path> possiblePaths = {
+    std::vector<fs::path> possible_paths = {
         test_dir / "file.txt",
         test_dir / "subdir2",
         test_dir / "subdir2/file2.txt",
@@ -84,7 +85,7 @@ TEST_CASE_METHOD(RecursiveDirectoryIteratorTest, "AccessOptions") {
 
     fs::permissions(test_dir / "subdir1", fs::perms::owner_all);
 
-    for (const auto& path : possiblePaths) {
+    for (const auto& path : possible_paths) {
         REQUIRE(std::find(actual_paths.begin(), actual_paths.end(), path) != actual_paths.end());
     }
 }
@@ -103,7 +104,7 @@ TEST_CASE_METHOD(RecursiveDirectoryIteratorTest, "SymLinksProcessing") {
     };
     std::vector<fs::path> actual_paths;
 
-    constexpr int expected_cnt_symlinks = 2;
+    constexpr int kExpectedCntSymlinks = 2;
     int cnt_symlinks = 0;
 
     for (const auto& entry : stdlike::recursive_directory_iterator(
@@ -112,7 +113,7 @@ TEST_CASE_METHOD(RecursiveDirectoryIteratorTest, "SymLinksProcessing") {
         cnt_symlinks += static_cast<int>(entry.is_symlink());
     }
 
-    REQUIRE(cnt_symlinks == expected_cnt_symlinks);
+    REQUIRE(cnt_symlinks == kExpectedCntSymlinks);
 
     for (const auto& path : control_paths) {
         REQUIRE(std::find(actual_paths.begin(), actual_paths.end(), path) != actual_paths.end());
@@ -160,8 +161,8 @@ TEST_CASE_METHOD(RecursiveDirectoryIteratorTest, "CheckStats") {
     std::ofstream fout{test_dir / "file_sz_small.txt"};
     fs::resize_file(test_dir / "file_sz_small.txt", kFileSize);
 
-    constexpr int expected_directories_cnt = 2;
-    constexpr int expected_regular_cnt = 4;
+    constexpr int kExpectedDirectoriesCnt = 2;
+    constexpr int kExpectedRegularCnt = 4;
 
     int directories_cnt = 0;
     int regular_cnt = 0;
@@ -181,6 +182,6 @@ TEST_CASE_METHOD(RecursiveDirectoryIteratorTest, "CheckStats") {
         }
     }
 
-    REQUIRE(directories_cnt == expected_directories_cnt);
-    REQUIRE(regular_cnt == expected_regular_cnt);
+    REQUIRE(directories_cnt == kExpectedDirectoriesCnt);
+    REQUIRE(regular_cnt == kExpectedRegularCnt);
 }
