@@ -149,8 +149,9 @@ TEST_CASE_METHOD(RecursiveDirectoryIteratorTest, "CheckDepthAndPop") {
     for (auto it = stdlike::recursive_directory_iterator(test_dir.c_str()); it != stdlike::end(it);
          ++it) {
         if (it->path() == (deep_path / "file.txt")) {
+            REQUIRE(it.depth() == 2);
             it.pop();
-            REQUIRE(it->path() == test_dir / "subdir1" / "file1.txt");
+            REQUIRE(it.depth() == 1);
             break;
         }
     }
