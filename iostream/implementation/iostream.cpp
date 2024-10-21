@@ -68,9 +68,10 @@ istream& istream::operator>>(unsigned long long& value) {
 
 istream& istream::operator>>(bool& value) {
     cout.flush();
-    int number = 0;
-    *this >> number;
-    value = number != 0;
+    char symbol;
+    *this >> symbol;
+    value = (symbol == '1');
+    error_ = (symbol > '1' || symbol < '0');
     return *this;
 }
 
@@ -109,7 +110,6 @@ istream& istream::operator>>(double& value) {
 }
 
 istream& istream::operator>>(char& value) {
-//    value = '\0';
     get(value);
     return *this;
 }
@@ -122,7 +122,8 @@ istream& istream::get(char& symbol) {
         return *this;
     }
     cout.flush();
-    symbol = buffer_[offset_++];
+    symbol = peek();
+    ++offset_;
     return *this;
 }
 
