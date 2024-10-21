@@ -55,8 +55,7 @@ TEST_CASE_METHOD(RecursiveDirectoryIteratorTest, "PlainTraversal") {
 
     CHECK(actual_paths.size() == expected_paths.size());
     for (const auto& expected : expected_paths) {
-        CHECK(std::find(actual_paths.begin(), actual_paths.end(), expected) !=
-                actual_paths.end());
+        CHECK(std::find(actual_paths.begin(), actual_paths.end(), expected) != actual_paths.end());
     }
 }
 
