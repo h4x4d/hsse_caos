@@ -26,16 +26,19 @@ public:
 
     int peek();
 
+    bool fail();
+
 private:
     void get_new_buffer();
 
     void skip_spaces();
 
-    static constexpr size_t max_buffer_size_ = 128;
-    char buffer_[max_buffer_size_];
-    size_t buffer_size_ = 0;
-    size_t offset_ = 0;
+    static constexpr size_t kMaxBufferSize = 128;
+    char buffer_[kMaxBufferSize];
+    ssize_t buffer_size_ = 0;
+    ssize_t offset_ = 0;
     long long absolute_offset_ = 0;
+    bool error_{false};
 };
 
 class ostream {
@@ -60,14 +63,17 @@ public:
 
     ostream& flush();
 
+    bool fail();
+
 private:
     void write_buffer();
 
-    static constexpr size_t max_buffer_size_ = 128;
-    char buffer_[max_buffer_size_];
-    size_t offset_ = 0;
+    static constexpr ssize_t kMaxBufferSize = 128;
+    char buffer_[kMaxBufferSize];
+    ssize_t offset_ = 0;
 
-    unsigned double_precision = 16;
+    static const unsigned kDoublePrecision = 16;
+    bool error_{false};
 };
 
 extern istream cin;

@@ -1,5 +1,6 @@
 #include "iostream.hpp"
 #include <limits>
+#include <iostream>
 
 namespace stdlike {
 
@@ -52,12 +53,15 @@ istream& istream::operator>>(unsigned long long& value) {
     cout.flush();
     skip_spaces();
     value = 0;
+    error_ = true;
+
     if (peek() == '-') {
         ++offset_;
     }
     while ('0' <= peek() && peek() <= '9') {
         value = value * 10 + peek() - '0';
         ++offset_;
+        error_ = false;
     }
     return *this;
 }
@@ -105,32 +109,44 @@ istream& istream::operator>>(double& value) {
 }
 
 istream& istream::operator>>(char& value) {
+//    value = '\0';
     get(value);
     return *this;
 }
 
 istream& istream::get(char& symbol) {
-    cout.flush();
     skip_spaces();
+    if (buffer_size_ == -1) {
+        symbol = '\0';
+        error_ = true;
+        return *this;
+    }
+    cout.flush();
     symbol = buffer_[offset_++];
     return *this;
 }
 
 int istream::peek() {
     get_new_buffer();
+    if (buffer_size_ == -1) {
+        error_ = true;
+        return '\0';
+    }
     return buffer_[offset_];
 }
 
 void istream::get_new_buffer() {
     if (offset_ >= buffer_size_) {
-        absolute_offset_ += static_cast<long long>(buffer_size_);
-        buffer_size_ = pread(0, buffer_, max_buffer_size_, absolute_offset_);
+        if (buffer_size_ > 0) {
+            absolute_offset_ += static_cast<long long>(buffer_size_);
+        }
+        buffer_size_ = pread(0, buffer_, kMaxBufferSize, absolute_offset_);
         offset_ = 0;
     }
 }
 
 void istream::skip_spaces() {
-    while (isspace(peek())) {
+    while (!error_ && isspace(peek())) {
         ++offset_;
     }
 }
@@ -140,7 +156,7 @@ ostream& ostream::operator<<(int value) {
 }
 
 ostream& ostream::operator<<(long long value) {
-    if (max_buffer_size_ - offset_ < 20) {
+    if (kMaxBufferSize - offset_ < 20) {
         write_buffer();
     }
     if (value < 0) {
@@ -168,7 +184,7 @@ ostream& ostream::operator<<(double value) {
     *this << '.';
     value -= static_cast<double>(static_cast<long long>(value));
     unsigned index = 0;
-    while (index++ < double_precision && value > 0) {
+    while (index++ < kDoublePrecision && value > 0) {
         value *= 10;
         int digit = static_cast<int>(value);
         *this << digit;
@@ -179,7 +195,7 @@ ostream& ostream::operator<<(double value) {
 }
 
 ostream& ostream::operator<<(char value) {
-    if (offset_ >= max_buffer_size_) {
+    if (offset_ >= kMaxBufferSize) {
         write_buffer();
     }
     buffer_[offset_++] = value;
@@ -204,16 +220,29 @@ ostream& ostream::put(char symbol) {
 }
 
 ostream& ostream::flush() {
+    error_ = false;
     write_buffer();
     return *this;
 }
 
 void ostream::write_buffer() {
-    size_t written = 0;
+    ssize_t written = 0;
     while (written != offset_) {
         written += write(1, buffer_ + written, offset_ - written);
+        if (written == -1) {
+            error_ = 1;
+            return;
+        }
     }
     offset_ = 0;
+}
+
+bool ostream::fail() {
+    return error_;
+}
+
+bool istream::fail() {
+    return error_;
 }
 
 istream cin;
