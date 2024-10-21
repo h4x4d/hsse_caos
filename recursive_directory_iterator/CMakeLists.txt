@@ -1,0 +1,1 @@
+add_catch(test_recursive_directory_iterator test.cpp implementation/rec_dir_it.cpp)

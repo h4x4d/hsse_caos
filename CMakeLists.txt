@@ -26,3 +26,4 @@ add_if_exists(multiplication)
 
 add_if_exists(iostream)
 
+add_if_exists(recursive_directory_iterator)
