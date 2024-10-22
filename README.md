@@ -1,7 +1,9 @@
-# ReadMe
+# Low-level Programming
 
-How to set everything up: [setup.md](docs/setup.md).
+Инструкция по настройке окружения и сдачи задач описана в файле [`setup.md`](./docs/setup.md).
 
-Try solving the [test problem](multiplication).
+Для знакомства с тестирующей системой попробуйте сдать задачу [test problem](multiplication).
 
-Browse problems here: https://hsse-caos.manytask.org/
+Перед решением задач не забывайте обновлять репозиторий.
+
+Список задач смотри здесь: https://hsse-caos.manytask.org/
