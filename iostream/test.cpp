@@ -268,7 +268,7 @@ TEST_CASE_METHOD(OutputTest, "Pointers") {
     cout.flush();
     REQUIRE_THAT(ExportOutput(), Catch::Matchers::Matches(str.data()));
 
-    void *ptr = &cout;
+    const void *ptr = &cout;
     cout << ptr << '\n';
     cout.flush();
     REQUIRE_THAT(ExportOutput(), Catch::Matchers::Matches("0x[0-9a-f]+"));
