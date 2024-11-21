@@ -254,6 +254,14 @@ TEST_CASE_METHOD(OutputTest, "FundamentalTypes") {
     REQUIRE(strcmp("0 1", ExportOutput()) == 0);
 }
 
+TEST_CASE_METHOD(OutputTest, "BorderValues") {
+  constexpr int max_int(std::numeric_limits<int>::max());
+  constexpr int min_int(std::numeric_limits<int>::min());
+  cout << max_int << ' ' << min_int << '\n';
+  cout.flush();
+  REQUIRE(strcmp((std::to_string(max_int) + ' ' + std::to_string(min_int)).c_str(), ExportOutput()) == 0);
+}
+
 TEST_CASE_METHOD(OutputTest, "Pointers") {
     constexpr std::string_view str = "Should be string!";
     cout << str.data() << '\n';
