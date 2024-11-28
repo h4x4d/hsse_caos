@@ -4,7 +4,7 @@
 
 namespace stdlike {
 
-bool isspace(char symbol) {
+bool utils::isspace(char symbol) {
     char spaces[6] = {' ', '\f', '\n', '\r', '\t', '\v'};
 
     for (char space : spaces) {
@@ -15,97 +15,30 @@ bool isspace(char symbol) {
 
     return false;
 }
-
-istream& istream::operator>>(int& value) {
-    long long number;
-    *this >> number;
-    value = static_cast<int>(number);
-    return *this;
+template <typename T>
+void utils::reverse(T* start, T* end) {
+    for (int i = 0; i < (end - start) / 2; ++i) {
+        T tmp = *(start + i);
+        *(start + i) = *(end - i - 1);
+        *(end - i - 1) = tmp;
+    }
 }
 
-istream& istream::operator>>(long long& value) {
-    cout.flush();
-    skip_spaces();
-    long long minus = 1;
-    if (peek() == '-') {
-        ++offset_;
-        minus = -1;
-    }
-    unsigned long long number;
-    *this >> number;
-    if (number > std::numeric_limits<long long>::max()) {
-        value = minus > 0 ? std::numeric_limits<long long>::max()
-                          : std::numeric_limits<long long>::min();
-    } else {
-        value = minus * static_cast<long long>(number);
-    }
-    return *this;
-}
-
-istream& istream::operator>>(unsigned int& value) {
-    unsigned long long number;
-    *this >> number;
-    value = static_cast<unsigned int>(number);
-    return *this;
-}
-
-istream& istream::operator>>(unsigned long long& value) {
-    cout.flush();
-    skip_spaces();
-    value = 0;
-    error_ = true;
-
-    if (peek() == '-') {
-        ++offset_;
-    }
-    while ('0' <= peek() && peek() <= '9') {
-        value = value * 10 + peek() - '0';
-        ++offset_;
-        error_ = false;
-    }
-    return *this;
+template <typename T>
+T utils::abs(T value) {
+    return value > 0 ? value : -value;
 }
 
 istream& istream::operator>>(bool& value) {
-    cout.flush();
-    char symbol;
-    *this >> symbol;
-    value = (symbol == '1');
-    error_ = (symbol > '1' || symbol < '0');
-    return *this;
-}
-
-istream& istream::operator>>(float& value) {
-    double number;
+    cout_ptr->flush();
+    int number;
     *this >> number;
-    value = static_cast<float>(number);
-    return *this;
-}
-
-istream& istream::operator>>(double& value) {
-    cout.flush();
-    skip_spaces();
-    double minus = 1;
-    if (peek() == '-') {
-        ++offset_;
-        minus = -1;
+    if (error_ != 0) {
+        value = false;
+    } else {
+        value = number != 0;
+        error_ = (number > 1) || (number < 0);
     }
-    value = 0;
-    while ('0' <= peek() && peek() <= '9') {
-        value = value * 10 + peek() - '0';
-        ++offset_;
-    }
-    if (peek() == '.') {
-        ++offset_;
-        double index = 10;
-
-        while ('0' <= peek() && peek() <= '9') {
-            value += static_cast<double>(peek() - '0') / (index);
-            index *= 10;
-            ++offset_;
-        }
-    }
-    value *= minus;
     return *this;
 }
 
@@ -121,7 +54,7 @@ istream& istream::get(char& symbol) {
         error_ = true;
         return *this;
     }
-    cout.flush();
+    cout_ptr->flush();
     symbol = peek();
     ++offset_;
     return *this;
@@ -129,8 +62,7 @@ istream& istream::get(char& symbol) {
 
 int istream::peek() {
     get_new_buffer();
-    if (buffer_size_ == -1) {
-        error_ = true;
+    if (buffer_size_ <= 0) {
         return '\0';
     }
     return buffer_[offset_];
@@ -142,57 +74,17 @@ void istream::get_new_buffer() {
             absolute_offset_ += static_cast<long long>(buffer_size_);
         }
         buffer_size_ = pread(0, buffer_, kMaxBufferSize, absolute_offset_);
+        if (buffer_size_ <= 0) {
+            error_ = 1;
+        }
         offset_ = 0;
     }
 }
 
 void istream::skip_spaces() {
-    while (!error_ && isspace(peek())) {
+    while (!error_ && utils::isspace(peek())) {
         ++offset_;
     }
-}
-
-ostream& ostream::operator<<(int value) {
-    return *this << static_cast<long long>(value);
-}
-
-ostream& ostream::operator<<(long long value) {
-    if (kMaxBufferSize - offset_ < 20) {
-        write_buffer();
-    }
-    if (value < 0) {
-        buffer_[offset_++] = '-';
-        value *= -1;
-    } else if (value == 0) {
-        buffer_[offset_++] = '0';
-    }
-
-    size_t start_offset = offset_;
-    while (value != 0) {
-        buffer_[offset_++] = static_cast<char>('0' + value % 10);
-        value /= 10;
-    }
-    for (size_t i = 0; i < (offset_ - start_offset) / 2; ++i) {
-        char temp = buffer_[start_offset + i];
-        buffer_[start_offset + i] = buffer_[offset_ - 1 - i];
-        buffer_[offset_ - 1 - i] = temp;
-    }
-    return *this;
-}
-
-ostream& ostream::operator<<(double value) {
-    *this << static_cast<long long>(value);
-    *this << '.';
-    value -= static_cast<double>(static_cast<long long>(value));
-    unsigned index = 0;
-    while (index++ < kDoublePrecision && value > 0) {
-        value *= 10;
-        int digit = static_cast<int>(value);
-        *this << digit;
-        value -= digit;
-    }
-
-    return *this;
 }
 
 ostream& ostream::operator<<(char value) {
@@ -205,6 +97,10 @@ ostream& ostream::operator<<(char value) {
 
 ostream& ostream::operator<<(const void* value) {
     return *this << '0' << 'x' << reinterpret_cast<long long>(value);
+}
+
+ostream& ostream::operator<<(bool value) {
+    return *this << static_cast<int>(value);
 }
 
 ostream& ostream::operator<<(const char* value) {
@@ -229,11 +125,12 @@ ostream& ostream::flush() {
 void ostream::write_buffer() {
     ssize_t written = 0;
     while (written != offset_) {
-        written += write(1, buffer_ + written, offset_ - written);
-        if (written == -1) {
+        ssize_t last_written = write(1, buffer_ + written, offset_ - written);
+        if (last_written == -1) {
             error_ = 1;
             return;
         }
+        written += last_written;
     }
     offset_ = 0;
 }
