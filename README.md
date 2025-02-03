@@ -1,9 +1,9 @@
-# Low-level Programming
+# HSSE Low-level Programming
 
-Инструкция по настройке окружения и сдачи задач описана в файле [`setup.md`](./docs/setup.md).
+## Tasks:
 
-Для знакомства с тестирующей системой попробуйте сдать задачу [test problem](multiplication).
+### [Iostream implementation]([https://github.com/h4x4d/hsse_caos/tree/main/iostream/implementation])
 
-Перед решением задач не забывайте обновлять репозиторий.
+### [Recursive directory iterator implementation](https://github.com/h4x4d/hsse_caos/tree/main/recursive_directory_iterator/implementation)
 
-Список задач смотри здесь: https://hsse-caos.manytask.org/
+### [Malloc implementation](https://github.com/h4x4d/hsse_caos/tree/main/malloc)
